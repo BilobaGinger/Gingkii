@@ -81,5 +81,7 @@ local Toggle = PlayerTab:CreateToggle({
             getgenv().SpawnAtDeathConn = nil
          end
       end
+      Rayfield:LoadConfiguration()
    end,
 })
+
