@@ -112,7 +112,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 LocalPlayer.CharacterAdded:Connect(function()
-   task.wait(1) -- small delay to allow GUI and character to load
+   task.wait(5) -- small delay to allow GUI and character to load
 
    local selected = Rayfield.Flags["AbilityDropdown"].CurrentOption[1]
    local keyMap = {
