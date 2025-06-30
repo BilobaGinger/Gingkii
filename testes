@@ -37,9 +37,9 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
-local ASTab = Window:CreateTab("AS", 4483362458) -- Title, Image
+local PlayerTab = Window:CreateTab("Player", 4483362458) -- Title, Image
 
-local Toggle = ASTab:CreateToggle({
+local Toggle = PlayerTab:CreateToggle({
    Name = "Spawn at Death Location",
    CurrentValue = false,
    Flag = "SpawnAtDeathToggle",
@@ -84,32 +84,26 @@ local Toggle = ASTab:CreateToggle({
    end,
 })
 
-local UserInputService = game:GetService("UserInputService")
-
 local Dropdown = ASTab:CreateDropdown({
-   Name = "Select training options",
+   Name = "Select training option",
    Options = {"Option 1", "Option 2", "Option 3", "Option 4"},
    CurrentOption = {"Option 1"},
    MultipleOptions = false,
    Flag = "Dropdown1",
    Callback = function(Options)
-      print("Selected:", Options[1])
+      local selected = Options[1]
+      if selected == "Option 1" then
+         print("Simulating press of 1")
+         -- Place the function here that runs when 1 is pressed
+      elseif selected == "Option 2" then
+         print("Simulating press of 2")
+         -- Same for 2
+      elseif selected == "Option 3" then
+         print("Simulating press of 3")
+      elseif selected == "Option 4" then
+         print("Simulating press of 4")
+      end
    end,
 })
-
--- Keybinds to select options 1–4 when pressing 1–4 on keyboard
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-   if gameProcessed then return end
-
-   if input.KeyCode == Enum.KeyCode.One then
-      Dropdown:Set({"Option 1"})
-   elseif input.KeyCode == Enum.KeyCode.Two then
-      Dropdown:Set({"Option 2"})
-   elseif input.KeyCode == Enum.KeyCode.Three then
-      Dropdown:Set({"Option 3"})
-   elseif input.KeyCode == Enum.KeyCode.Four then
-      Dropdown:Set({"Option 4"})
-   end
-end)
 
 Rayfield:LoadConfiguration()
