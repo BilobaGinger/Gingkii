@@ -84,7 +84,7 @@ local Toggle = PlayerTab:CreateToggle({
    end,
 })
 
-local Dropdown = ASTab:CreateDropdown({
+local Dropdown = PlayerTab:CreateDropdown({
    Name = "Select training option",
    Options = {"Option 1", "Option 2", "Option 3", "Option 4"},
    CurrentOption = {"Option 1"},
