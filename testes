@@ -84,31 +84,27 @@ local Toggle = PlayerTab:CreateToggle({
    end,
 })
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local Dropdown = PlayerTab:CreateDropdown({
-   Name = "Select Tool",
-   Options = {"Option 1", "Option 2", "Option 3", "Option 4"},
-   CurrentOption = {"Option 1"},
+   Name = "Select Ability Slot",
+   Options = {"Slot 1", "Slot 2", "Slot 3", "Slot 4"},
+   CurrentOption = {"Slot 1"},
    MultipleOptions = false,
-   Flag = "Dropdown1",
+   Flag = "AbilityDropdown",
    Callback = function(Options)
-      local selected = Options[1]
-      local toolIndex = tonumber(selected:match("%d+")) -- Extracts the number from "Option 1"
-      
-      if not toolIndex then return end
+      local keyMap = {
+         ["Slot 1"] = Enum.KeyCode.One,
+         ["Slot 2"] = Enum.KeyCode.Two,
+         ["Slot 3"] = Enum.KeyCode.Three,
+         ["Slot 4"] = Enum.KeyCode.Four,
+      }
 
-      local backpack = player:FindFirstChild("Backpack")
-      if not backpack then return end
-
-      local tools = backpack:GetChildren()
-      local tool = tools[toolIndex]
-      if tool and tool:IsA("Tool") then
-         player.Character:FindFirstChildOfClass("Humanoid"):EquipTool(tool)
-         print("Equipped:", tool.Name)
-      else
-         print("Tool not found at slot", toolIndex)
+      local key = keyMap[Options[1]]
+      if key then
+         VirtualInputManager:SendKeyEvent(true, key, false, game)
+         VirtualInputManager:SendKeyEvent(false, key, false, game)
+         print("Pressed key for", Options[1])
       end
    end,
 })
