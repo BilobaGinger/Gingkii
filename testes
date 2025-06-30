@@ -84,24 +84,31 @@ local Toggle = PlayerTab:CreateToggle({
    end,
 })
 
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
 local Dropdown = PlayerTab:CreateDropdown({
-   Name = "Select training option",
+   Name = "Select Tool",
    Options = {"Option 1", "Option 2", "Option 3", "Option 4"},
    CurrentOption = {"Option 1"},
    MultipleOptions = false,
    Flag = "Dropdown1",
    Callback = function(Options)
       local selected = Options[1]
-      if selected == "Option 1" then
-         print("Simulating press of 1")
-         -- Place the function here that runs when 1 is pressed
-      elseif selected == "Option 2" then
-         print("Simulating press of 2")
-         -- Same for 2
-      elseif selected == "Option 3" then
-         print("Simulating press of 3")
-      elseif selected == "Option 4" then
-         print("Simulating press of 4")
+      local toolIndex = tonumber(selected:match("%d+")) -- Extracts the number from "Option 1"
+      
+      if not toolIndex then return end
+
+      local backpack = player:FindFirstChild("Backpack")
+      if not backpack then return end
+
+      local tools = backpack:GetChildren()
+      local tool = tools[toolIndex]
+      if tool and tool:IsA("Tool") then
+         player.Character:FindFirstChildOfClass("Humanoid"):EquipTool(tool)
+         print("Equipped:", tool.Name)
+      else
+         print("Tool not found at slot", toolIndex)
       end
    end,
 })
