@@ -46,36 +46,40 @@ local Toggle = PlayerTab:CreateToggle({
    Callback = function(Value)
       local Players = game:GetService("Players")
       local player = Players.LocalPlayer
-      local conn -- store connection so we can disconnect it
+      local conn -- store connection
+      local lastPosition
+
+      local function setupSpawnLogic(char)
+         if lastPosition then
+            local hrp = char:WaitForChild("HumanoidRootPart", 5)
+            if hrp then
+               hrp.CFrame = CFrame.new(lastPosition)
+            end
+            lastPosition = nil
+         end
+
+         local humanoid = char:WaitForChild("Humanoid", 5)
+         if humanoid then
+            humanoid.Died:Connect(function()
+               local hrp = char:FindFirstChild("HumanoidRootPart")
+               if hrp then
+                  lastPosition = hrp.Position
+               end
+            end)
+         end
+      end
 
       if Value then
-         local lastPosition
+         conn = player.CharacterAdded:Connect(setupSpawnLogic)
 
-         conn = player.CharacterAdded:Connect(function(char)
-            if lastPosition then
-               local hrp = char:WaitForChild("HumanoidRootPart", 5)
-               if hrp then
-                  hrp.CFrame = CFrame.new(lastPosition)
-               end
-               lastPosition = nil
-            end
+         -- 🟢 Immediately apply if already spawned
+         if player.Character then
+            setupSpawnLogic(player.Character)
+         end
 
-            local humanoid = char:WaitForChild("Humanoid", 5)
-            if humanoid then
-               humanoid.Died:Connect(function()
-                  local hrp = char:FindFirstChild("HumanoidRootPart")
-                  if hrp then
-                     lastPosition = hrp.Position
-                  end
-               end)
-            end
-         end)
-
-         -- Save the connection to toggle off later
          getgenv().SpawnAtDeathConn = conn
-
       else
-         -- Toggle off: disconnect the listener
+         -- 🔴 Disconnect when toggle is off
          if getgenv().SpawnAtDeathConn then
             getgenv().SpawnAtDeathConn:Disconnect()
             getgenv().SpawnAtDeathConn = nil
