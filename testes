@@ -92,9 +92,8 @@ local Players = game:GetService("Players")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local player = Players.LocalPlayer
 
-local lastSelectedKey -- to store the last key selected
+local lastSelectedKey -- stores last selected key for respawn use
 
--- Dropdown UI
 local Dropdown = PlayerTab:CreateDropdown({
    Name = "Select Ability Slot",
    Options = {"Slot 1", "Slot 2", "Slot 3", "Slot 4"},
@@ -109,25 +108,28 @@ local Dropdown = PlayerTab:CreateDropdown({
          ["Slot 4"] = Enum.KeyCode.Four,
       }
 
-      local key = keyMap[Options[1]]
-      if key then
-         lastSelectedKey = key -- save it
-         VirtualInputManager:SendKeyEvent(true, key, false, game)
-         task.wait(0.05)
-         VirtualInputManager:SendKeyEvent(false, key, false, game)
-         print("Pressed:", key.Name)
+      local selectedKey = keyMap[Options[1]]
+      if selectedKey then
+         lastSelectedKey = selectedKey
+
+         task.delay(15, function()
+            VirtualInputManager:SendKeyEvent(true, selectedKey, false, game)
+            task.wait(0.05)
+            VirtualInputManager:SendKeyEvent(false, selectedKey, false, game)
+            print("Pressed after 15 seconds:", selectedKey.Name)
+         end)
       end
    end,
 })
 
--- Re-send last selected key when character respawns
+-- Re-apply key after respawn
 player.CharacterAdded:Connect(function()
-   task.wait(1) -- wait a bit to ensure GUI is ready
+   task.wait(1)
    if lastSelectedKey then
       VirtualInputManager:SendKeyEvent(true, lastSelectedKey, false, game)
       task.wait(0.05)
       VirtualInputManager:SendKeyEvent(false, lastSelectedKey, false, game)
-      print("Re-applied key after respawn:", lastSelectedKey.Name)
+      print("Re-applied after respawn:", lastSelectedKey.Name)
    end
 end)
 
