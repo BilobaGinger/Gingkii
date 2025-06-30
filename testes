@@ -92,8 +92,19 @@ local Players = game:GetService("Players")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local player = Players.LocalPlayer
 
-local lastSelectedKey -- stores last selected key for respawn use
+local lastSelectedKey
 
+-- Function to press key after delay
+local function pressKeyAfterDelay(key)
+   task.delay(65, function() -- 1 minute and 5 seconds = 65 seconds
+      VirtualInputManager:SendKeyEvent(true, key, false, game)
+      task.wait(0.05)
+      VirtualInputManager:SendKeyEvent(false, key, false, game)
+      print("Delayed press of:", key.Name)
+   end)
+end
+
+-- Dropdown setup
 local Dropdown = PlayerTab:CreateDropdown({
    Name = "Select Ability Slot",
    Options = {"Slot 1", "Slot 2", "Slot 3", "Slot 4"},
@@ -108,28 +119,18 @@ local Dropdown = PlayerTab:CreateDropdown({
          ["Slot 4"] = Enum.KeyCode.Four,
       }
 
-      local selectedKey = keyMap[Options[1]]
-      if selectedKey then
-         lastSelectedKey = selectedKey
-
-         task.delay(15, function()
-            VirtualInputManager:SendKeyEvent(true, selectedKey, false, game)
-            task.wait(0.05)
-            VirtualInputManager:SendKeyEvent(false, selectedKey, false, game)
-            print("Pressed after 15 seconds:", selectedKey.Name)
-         end)
+      local key = keyMap[Options[1]]
+      if key then
+         lastSelectedKey = key
+         pressKeyAfterDelay(key)
       end
    end,
 })
 
--- Re-apply key after respawn
+-- Reapply on respawn with delay
 player.CharacterAdded:Connect(function()
-   task.wait(1)
    if lastSelectedKey then
-      VirtualInputManager:SendKeyEvent(true, lastSelectedKey, false, game)
-      task.wait(0.05)
-      VirtualInputManager:SendKeyEvent(false, lastSelectedKey, false, game)
-      print("Re-applied after respawn:", lastSelectedKey.Name)
+      pressKeyAfterDelay(lastSelectedKey)
    end
 end)
 
