@@ -111,32 +111,16 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 LocalPlayer.CharacterAdded:Connect(function()
-   task.wait(1) -- Let the UI and player load
+   task.wait(2) -- Wait for Rayfield and everything else to be fully loaded
 
-   local keyMap = {
-      ["Slot 1"] = Enum.KeyCode.One,
-      ["Slot 2"] = Enum.KeyCode.Two,
-      ["Slot 3"] = Enum.KeyCode.Three,
-      ["Slot 4"] = Enum.KeyCode.Four,
-   }
-
-   -- Retry until Rayfield.Flags has the value
-   local selected
-   repeat
-      task.wait(0.1)
-      local flag = Rayfield.Flags["AbilityDropdown"]
-      if flag and flag.CurrentOption then
-         selected = flag.CurrentOption[1]
-      end
-   until selected
-
-   local key = keyMap[selected]
-   if key then
-      VirtualInputManager:SendKeyEvent(true, key, false, game)
-      VirtualInputManager:SendKeyEvent(false, key, false, game)
-      print("Re-applied key for", selected)
+   -- Re-trigger the dropdown callback using the saved selection
+   local dropdownFlag = Rayfield.Flags["AbilityDropdown"]
+   if dropdownFlag and dropdownFlag.CurrentOption then
+      local selected = dropdownFlag.CurrentOption
+      Rayfield.Flags["AbilityDropdown"]:Set(selected) -- This re-calls the dropdown's Callback
+      print("Re-triggered dropdown for:", selected[1])
    else
-      warn("No key matched for dropdown value:", selected)
+      warn("Dropdown option not ready yet")
    end
 end)
 
