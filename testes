@@ -93,18 +93,17 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 local player = Players.LocalPlayer
 
 local lastSelectedKey
+local firstTime = true -- to track if it's the first spawn
 
--- Function to press key after delay
-local function pressKeyAfterDelay(key)
-   task.delay(65, function() -- 1 minute and 5 seconds = 65 seconds
-      VirtualInputManager:SendKeyEvent(true, key, false, game)
-      task.wait(0.05)
-      VirtualInputManager:SendKeyEvent(false, key, false, game)
-      print("Delayed press of:", key.Name)
-   end)
+-- Function to simulate key press
+local function pressKey(key)
+   VirtualInputManager:SendKeyEvent(true, key, false, game)
+   task.wait(0.05)
+   VirtualInputManager:SendKeyEvent(false, key, false, game)
+   print("Pressed:", key.Name)
 end
 
--- Dropdown setup
+-- Handle dropdown selection
 local Dropdown = PlayerTab:CreateDropdown({
    Name = "Select Ability Slot",
    Options = {"Slot 1", "Slot 2", "Slot 3", "Slot 4"},
@@ -122,15 +121,24 @@ local Dropdown = PlayerTab:CreateDropdown({
       local key = keyMap[Options[1]]
       if key then
          lastSelectedKey = key
-         pressKeyAfterDelay(key)
+         if firstTime then
+            -- Delay only on first join
+            task.delay(65, function()
+               pressKey(key)
+            end)
+         else
+            pressKey(key) -- No delay on respawn
+         end
       end
    end,
 })
 
--- Reapply on respawn with delay
+-- Reapply key on respawn (no delay)
 player.CharacterAdded:Connect(function()
+   task.wait(1)
    if lastSelectedKey then
-      pressKeyAfterDelay(lastSelectedKey)
+      firstTime = false
+      pressKey(lastSelectedKey)
    end
 end)
 
