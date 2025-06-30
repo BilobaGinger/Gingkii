@@ -84,8 +84,13 @@ local Toggle = PlayerTab:CreateToggle({
    end,
 })
 
+local Players = game:GetService("Players")
 local VirtualInputManager = game:GetService("VirtualInputManager")
+local player = Players.LocalPlayer
 
+local lastSelectedKey -- to store the last key selected
+
+-- Dropdown UI
 local Dropdown = PlayerTab:CreateDropdown({
    Name = "Select Ability Slot",
    Options = {"Slot 1", "Slot 2", "Slot 3", "Slot 4"},
@@ -102,12 +107,24 @@ local Dropdown = PlayerTab:CreateDropdown({
 
       local key = keyMap[Options[1]]
       if key then
+         lastSelectedKey = key -- save it
          VirtualInputManager:SendKeyEvent(true, key, false, game)
          task.wait(0.05)
          VirtualInputManager:SendKeyEvent(false, key, false, game)
-         print("Attempted to press:", key.Name)
+         print("Pressed:", key.Name)
       end
    end,
 })
+
+-- Re-send last selected key when character respawns
+player.CharacterAdded:Connect(function()
+   task.wait(1) -- wait a bit to ensure GUI is ready
+   if lastSelectedKey then
+      VirtualInputManager:SendKeyEvent(true, lastSelectedKey, false, game)
+      task.wait(0.05)
+      VirtualInputManager:SendKeyEvent(false, lastSelectedKey, false, game)
+      print("Re-applied key after respawn:", lastSelectedKey.Name)
+   end
+end)
 
 Rayfield:LoadConfiguration()
